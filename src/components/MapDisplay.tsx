@@ -1,4 +1,4 @@
-zimport { Paper, Button } from '@mui/material';
+import { Paper, Button } from '@mui/material';
 import { useEffect, useMemo, useRef } from 'react';
 
 import { MAP_PADDING } from '../constants';

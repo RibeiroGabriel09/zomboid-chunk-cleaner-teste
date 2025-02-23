@@ -1,10 +1,11 @@
-import { Paper } from '@mui/material';
+zimport { Paper, Button } from '@mui/material';
 import { useEffect, useMemo, useRef } from 'react';
 
 import { MAP_PADDING } from '../constants';
 import { useAppContext } from '../hooks';
 import type { Coordinate, Region } from '../types';
 import { expandRegion, isChildOf, isPointSelected } from '../utils';
+import { saveAs } from 'file-saver';
 
 enum Colors {
     SAFE_HOUSE = 'hsla(100, 100%, 76%, 70%)',
@@ -34,6 +35,21 @@ export const MapDisplay: React.FC = () => {
     const mapRootRef = useRef<HTMLDivElement>(null);
     const mapCanvasRef = useRef<HTMLCanvasElement>(null);
     const selectionCanvasRef = useRef<HTMLCanvasElement>(null);
+
+    // Função para salvar safehouses em um arquivo TXT (nome e coordenadas)
+    const saveSafehousesToTxt = () => {
+        if (!safeHouses || safeHouses.length === 0) return;
+        // Para cada safehouse, extraímos o owner e as coordenadas do region
+        const safehouseData = safeHouses.map(sh => {
+            const { owner, region } = sh;
+            // region é um array com dois pontos, por exemplo: [{ x, y }, { x, y }]
+            const [point1, point2] = region;
+            return `${owner}: Coordenadas - x1: ${point1.x}, y1: ${point1.y}, x2: ${point2.x}, y2: ${point2.y}`;
+        }).join('\n');
+
+        const blob = new Blob([safehouseData], { type: 'text/plain;charset=utf-8' });
+        saveAs(blob, 'safehouses.txt');
+    };
 
     // Calculate map tiles to display
     const tileInfo = useMemo(() => {
@@ -352,6 +368,15 @@ export const MapDisplay: React.FC = () => {
                 ></canvas>
                 <canvas ref={selectionCanvasRef} style={{ zIndex: 2, gridArea: '1 / 1' }}></canvas>
             </div>
+            {/* Botão para salvar as safehouses em um TXT */}
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={saveSafehousesToTxt}
+                style={{ marginTop: '1rem' }}
+            >
+                Salvar Safehouses
+            </Button>
         </Paper>
     );
 };
